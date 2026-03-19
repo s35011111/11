@@ -51,6 +51,5 @@ class HabitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Habit
-        fields = ['id', 'user', 'place', 'action', 'habit_type',
-                  'connected_habit', 'reward', 'start_time', 'duration',
-                  'periodicity', 'is_public']
+        fields = '__all__'
+        read_only_fields = ('user',)

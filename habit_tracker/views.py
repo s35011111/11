@@ -2,7 +2,7 @@ from django.db.models import Q
 # Create your views here.
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -76,3 +76,13 @@ class HabitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         serializer.save(user=user)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='my-habits')
+    def my_habits(self, request):
+        habits = self.get_queryset().filter(user=request.user)
+        page = self.paginate_queryset(habits)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(habits, many=True)
+        return Response(serializer.data)
